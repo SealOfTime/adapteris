@@ -1,8 +1,10 @@
-package config
+package auth
 
-import "golang.org/x/oauth2"
+import (
+	"golang.org/x/oauth2"
+)
 
-type authProviderConfig struct {
+type ProviderConfig struct {
 	Name string
 	ClientId string
 	ClientSecret string
@@ -12,7 +14,7 @@ type authProviderConfig struct {
 	Scopes []string
 }
 
-func setupProviders(cfg *AuthConfig) map[string] oauth2.Config{
+func setupProviders(cfg *Config) map[string] oauth2.Config{
 	providers := make(map[string] oauth2.Config, len(cfg.Providers))
 	for _, p := range cfg.Providers {
 		redirectUrl := p.RedirectUrl

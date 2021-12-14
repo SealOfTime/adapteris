@@ -1,4 +1,4 @@
-package http
+package api
 
 
 import (
@@ -14,8 +14,8 @@ func Authorized(secret []byte) fiber.Handler {
 		//SuccessHandler:           nil,
 		//ErrorHandler:             nil,
 		SigningKey:               secret,
-		//SigningMethod:            "RS256", todo: consider for soa deployment
-		ContextKey:               USER,
-		Claims:                   nil,
+		//todo: consider for soa deployment
+		ContextKey: USER,
+		Claims:     nil,
 	})
 }
