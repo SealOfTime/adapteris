@@ -7,7 +7,7 @@ import (
 )
 
 type App struct{
-	Cfg *config.Config
+	Cfg  *config.Config
 	Auth auth.App
 	*fiber.App
 }
