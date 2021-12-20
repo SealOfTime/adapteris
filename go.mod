@@ -8,4 +8,6 @@ require (
 	github.com/golang-jwt/jwt/v4 v4.2.0
 	github.com/spf13/viper v1.9.0 // indirect
 	golang.org/x/oauth2 v0.0.0-20211104180415-d3ed0bb246c8
+	gorm.io/driver/postgres v1.2.3 // indirect
+	gorm.io/gorm v1.22.4 // indirect
 )

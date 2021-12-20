@@ -1,0 +1,13 @@
+auth:
+  callbackUrl: "http://localhost:8080/auth"
+  providers:
+    vk:
+      jwt:
+        alg: HS256
+        key: 3oijrnifnisef9u29ucanmdiow8fnwc
+      oauth2:
+        clientId: 8022055
+        clientSecret: oZ3Iko4zHtykW9afU762
+        endpoint:
+          authUrl: https://oauth.vk.com/authorize
+          tokenUrl: https://oauth.vk.com/access_token

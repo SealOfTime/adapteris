@@ -7,25 +7,22 @@ import (
 )
 
 type App interface {
-	Authenticate(ctx context.Context, credentials interface{}) (*jwt.Token, error)
+	Authenticate(ctx context.Context, credentials interface{}) (string, error)
 	Refresh(ctx context.Context) (jwt.Token, error)
 }
 
-type AppOption func(*App)
+type WithFunc func(*App)
 
-func New() (App) {
-	return &appImpl{
-		providers: make([]Authenticator, 3),
+func New(cfg *Config, storage ExternalAccountStorage) App {
+	app := &appImpl{
+		providers: setupProviders(cfg, storage),
 	}
+	return app
 }
 
 type appImpl struct {
-	services struct {
-
-	}
 	providers []Authenticator
 }
-
 
 func (a *appImpl) Refresh(ctx context.Context) (jwt.Token, error) {
 	panic("implement me")

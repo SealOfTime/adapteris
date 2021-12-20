@@ -8,12 +8,11 @@ import (
 )
 
 type Config struct {
-	Secret []byte
-	auth.Config
+	Auth auth.Config
 }
 
 func Read() *Config {
-	viper.SetConfigName("app-config")
+	viper.SetConfigName("app")
 	viper.SetConfigType("yaml")
 	if cfgDir := os.Getenv("ADAPTERIS_CFG_DIR"); cfgDir != "" {
 		viper.AddConfigPath(cfgDir)
