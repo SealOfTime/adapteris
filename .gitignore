@@ -1,3 +1,7 @@
 .idea
 go.sum
 *.iml
+node_modules
+build
+static
+tmp
