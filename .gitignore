@@ -1,7 +1,7 @@
 .idea
 go.sum
 *.iml
+*.code-workspace
 node_modules
 build
-static
 tmp

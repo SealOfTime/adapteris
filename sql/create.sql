@@ -1,11 +1,21 @@
 --User
+CREATE TYPE site_role as ENUM ('USER', 'ADMIN');
+CREATE DOMAIN email AS varchar(320)
+  CHECK ( value ~ '^[a-zA-Z0-9.!#$%&''*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$' );
+
 CREATE TABLE "User"
 (
     "id"            serial PRIMARY KEY,
+    "registered_at" date         NOT NULL DEFAULT now(),
+    "role"          site_role    NOT NULL DEFAULT 'USER',
+
     "full_name"     text,
     "short_name"    varchar(255) NOT NULL CHECK ("short_name" <> ''),
-    "registered_at" date         NOT NULL DEFAULT now(),
-    "is_admin"      boolean      NOT NULL
+
+    "email"         email        NOT NULL UNIQUE,
+    "telegram"      varchar(32),
+    "vk"            varchar(32),
+    "phone_number"  varchar(32),
 );
 
 CREATE TABLE "External_Account"
