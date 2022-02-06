@@ -12,6 +12,10 @@ type ExternalAccount struct {
 	ExternalId string
 }
 
+type ExternalAccountStorage interface {
+	FindByExternalId(ctx context.Context, id string) (*ExternalAccount, error)
+}
+
 //ErrExternalAccountNotFound signals that the ExternalAccount with this ExtId was not found
 type ErrExternalAccountNotFound struct {
 	ExtId string
@@ -19,8 +23,4 @@ type ErrExternalAccountNotFound struct {
 
 func (e ErrExternalAccountNotFound) Error() string {
 	return fmt.Sprintf("external account with external id '%s' not found", e.ExtId)
-}
-
-type ExternalAccountStorage interface {
-	FindByExternalId(ctx context.Context, id string) (*ExternalAccount, error)
 }

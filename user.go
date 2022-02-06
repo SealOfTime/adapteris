@@ -25,6 +25,7 @@ type User struct {
 	Vk          *string
 	PhoneNumber *string
 }
+
 type UserStorage interface {
 	FindById(ctx context.Context, id int64) (*User, error)
 	UpsertByEmail(ctx context.Context, user User) (*User, error)

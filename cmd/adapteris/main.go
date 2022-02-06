@@ -9,7 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/sealoftime/adapteris/auth/vk"
 	"github.com/sealoftime/adapteris/http"
-	"github.com/sealoftime/adapteris/mock"
+	"github.com/sealoftime/adapteris/memory"
 )
 
 var RequestFileExtensionPattern = regexp.MustCompile(".*\\.([a-z]+)")
@@ -33,8 +33,8 @@ func main() {
 		*VkId,
 		*VkSecret,
 		"http://adapteris.test/api/auth/vk/callback",
-		&mock.InMemExternalAccountStore{},
-		&mock.InMemUserStore{},
+		&memory.ExternalAccountStore{},
+		&memory.UserStore{},
 	)
 	auth := http.NewAuthController(vkAuth)
 
