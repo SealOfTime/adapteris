@@ -2,8 +2,6 @@ module github.com/sealoftime/adapteris
 
 go 1.17
 
-require github.com/gofiber/fiber v1.14.6
-
 require (
 	github.com/andybalholm/brotli v1.0.2 // indirect
 	github.com/gofiber/fiber/v2 v2.24.0
@@ -20,6 +18,7 @@ require (
 )
 
 require (
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/golang/protobuf v1.4.2 // indirect
 	golang.org/x/net v0.0.0-20210510120150-4163338589ed // indirect
 	google.golang.org/appengine v1.6.6 // indirect

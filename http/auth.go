@@ -4,47 +4,41 @@ import (
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/sealoftime/adapteris/auth"
 	"github.com/sealoftime/adapteris/auth/vk"
 )
 
 func NewAuthController(
-	oauth2 vk.Authenticator,
+	auth auth.App,
 ) *fiber.App {
-	c := authController{
-		vk: oauth2,
-	}
+	api := fiber.New()
+	api.Get("/login", login(auth.ConcatLoginUrl))
+	api.Get("/vk/callback", signInByVk(auth))
 
-	app := fiber.New()
-	app.Get("/login", c.Login)
-	app.Get("/vk/callback", c.VkOAuthCallback)
-
-	return app
+	return api
 }
 
-type authController struct {
-	vk vk.Authenticator
+func login(loginUrlWithRedirect func(string) string) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		return c.Redirect(loginUrlWithRedirect("/"), fiber.StatusSeeOther)
+	}
 }
 
-func (a authController) Login(c *fiber.Ctx) error {
-	return c.Redirect(a.vk.LoginUrl("/"), fiber.StatusSeeOther)
-}
+func signInByVk(app auth.App) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		code := c.Query("code")
+		if code == "" {
+			return fiber.NewError(fiber.StatusBadRequest, "Empty code")
+		}
 
-func (a authController) VkOAuthCallback(c *fiber.Ctx) error {
-	code := c.Query("code")
-	if code == "" {
-		return fiber.NewError(fiber.StatusBadRequest, "Empty code")
+		user, err := app.Authenticate(c.Context(), vk.AccessCodeCreds{
+			AccessCode: code,
+		})
+
+		if err != nil {
+			return fiber.NewError(fiber.StatusInternalServerError, fmt.Sprintf("OAuthentication error: %+v\n", err))
+		}
+
+		return c.SendString("Oh fuck, you must be " + user.ShortName)
 	}
-
-	_, err := a.vk.Authenticate(c.Context(), vk.OAuth2AccessCodeCredentials{
-		ProviderName: "Vk",
-		AccessCode:   code,
-	})
-
-	if err != nil {
-		return fiber.NewError(fiber.StatusInternalServerError, fmt.Sprintf("OAuthentication error: %+v\n", err))
-	}
-
-	c.SendString("Nice")
-
-	return nil
 }

@@ -15,20 +15,24 @@ import (
 	"golang.org/x/oauth2/vk"
 )
 
-type vkAuthenticator struct {
-	ExtAccStorage domain.ExternalAccountStorage
-	UserStorage   domain.UserStorage
+type AccessCodeCreds struct {
+	AccessCode string
+}
+
+type Authenticator struct {
+	extAccStorage domain.ExternalAccountStorage
+	userStorage   domain.UserStorage
 	oauth2.Config
 }
 
-func NewVkAuthenticator(
+func NewAuthenticator(
 	clientId, clientSecret, successRedirectUrl string,
 	extAccStorage domain.ExternalAccountStorage,
 	userStorage domain.UserStorage,
-) *vkAuthenticator {
-	return &vkAuthenticator{
-		ExtAccStorage: extAccStorage,
-		UserStorage:   userStorage,
+) *Authenticator {
+	return &Authenticator{
+		extAccStorage: extAccStorage,
+		userStorage:   userStorage,
 		Config: oauth2.Config{
 			ClientID:     clientId,
 			ClientSecret: clientSecret,
@@ -39,13 +43,13 @@ func NewVkAuthenticator(
 	}
 }
 
-func (a *vkAuthenticator) LoginUrl(afterLoginUrl string) string {
+func (a *Authenticator) LoginUrl(afterLoginUrl string) string {
 	return a.Config.AuthCodeURL(afterLoginUrl)
 }
-func (a *vkAuthenticator) Authenticate(ctx context.Context, creds OAuth2AccessCodeCredentials) (*domain.User, error) {
-	if creds.ProviderName != "Vk" {
-		//If not the OAuth2 credentials authenticating or if the requested authentication provider is not the same
-		//as this one, skip.
+
+func (a *Authenticator) Authenticate(ctx context.Context, rawCreds interface{}) (*domain.User, error) {
+	creds, ok := rawCreds.(AccessCodeCreds)
+	if !ok {
 		return nil, nil
 	}
 
@@ -54,20 +58,20 @@ func (a *vkAuthenticator) Authenticate(ctx context.Context, creds OAuth2AccessCo
 		return nil, ErrExchangeFailed{Cause: err}
 	}
 
-	eid, err := a.ExtractExternalId(ctx, *oa2t)
+	eid, err := a.extractExternalId(ctx, *oa2t)
 	if err != nil {
 		return nil, ErrOA2InvalidToken{Cause: err}
 	}
 
-	ea, err := a.ExtAccStorage.FindByExternalId(ctx, eid)
+	ea, err := a.extAccStorage.FindByExternalId(ctx, eid)
 	if err != nil {
 		var errNotFound domain.ErrExternalAccountNotFound
 		if errors.As(err, &errNotFound) {
-			d, err := a.ExtractUserDefaults(ctx, *oa2t)
+			d, err := a.extractUserDefaults(ctx, *oa2t)
 			if err != nil {
 				return nil, err
 			}
-			return a.UserStorage.UpsertByEmail(ctx, *d)
+			return a.userStorage.UpsertByEmail(ctx, *d)
 		}
 
 		return nil, err
@@ -76,7 +80,7 @@ func (a *vkAuthenticator) Authenticate(ctx context.Context, creds OAuth2AccessCo
 	return ea.User, nil
 }
 
-func (a *vkAuthenticator) ExtractExternalId(ctx context.Context, t oauth2.Token) (string, error) {
+func (a *Authenticator) extractExternalId(ctx context.Context, t oauth2.Token) (string, error) {
 	exIdRaw := t.Extra("user_id")
 	if exIdRaw == nil {
 		return "", ErrOA2ExtraMissing{Extra: "user_id"}
@@ -87,7 +91,7 @@ func (a *vkAuthenticator) ExtractExternalId(ctx context.Context, t oauth2.Token)
 	return exId, nil
 }
 
-func (a *vkAuthenticator) ExtractUserDefaults(ctx context.Context, t oauth2.Token) (*domain.User, error) {
+func (a *Authenticator) extractUserDefaults(ctx context.Context, t oauth2.Token) (*domain.User, error) {
 	vk, err := fetchUserDetailsForToken(t)
 	if err != nil {
 		return nil, err
