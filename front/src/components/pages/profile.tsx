@@ -14,7 +14,7 @@ export type user = {
     email: string
 }
 
-export const ProfilePage: FC<user> = () => {
+export const ProfilePage: FC<> = () => {
     const iconStyle={width: '2rem', color: 'black'};
     const user = stubUser;
     const [saved, edit] = useState(true);
