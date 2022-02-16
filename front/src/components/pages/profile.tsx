@@ -3,7 +3,7 @@ import {BookmarkIcon, PencilAltIcon, SaveIcon} from "@heroicons/react/outline";
 import { Box, Stack, Card, Typography, TextField, Icon, Container, IconButton, LinearProgressClassKey } from "@mui/material";
 import { color } from "@mui/system";
 
-export type user = {
+export type User = {
     fullName: string
     shortName?: string
     studentId: number
@@ -14,7 +14,7 @@ export type user = {
     email: string
 }
 
-export const ProfilePage: FC<user> = () => {
+export const ProfilePage: FC<User> = () => {
     const iconStyle={width: '2rem', color: 'black'};
     const user = stubUser;
     const [saved, edit] = useState(true);
