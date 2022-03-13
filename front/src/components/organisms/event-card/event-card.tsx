@@ -1,9 +1,14 @@
-import { FC, useMemo } from "react";
+import { FC, useMemo, useState } from "react";
 import { Card, Stack, CardContent, Typography, Button, IconButton } from "@mui/material";
 import { ClockIcon, OfficeBuildingIcon, UsersIcon, ArrowCircleRightIcon } from "@heroicons/react/outline";
 import { FullsizeEventCard } from "./fullsize-event-card";
+import { Link } from 'react-router-dom'
+import Dialog from '@mui/material/Dialog';
+
+
 
 export type SchoolEvent = {
+    id: number
     name: string
     description?: string
     datetime: Date
@@ -14,10 +19,25 @@ export type SchoolEvent = {
 type EventCardProps = {
     event: SchoolEvent
 }
+
+export type EventRegistration = {
+    id: number
+    userId: number
+    isRegistered: boolean,
+    event: SchoolEvent
+}
+
 export const EventCard: FC<EventCardProps> = ({ event }) => {
     const { day, month, hour, minute } = useMemo(() => formatDate(event.datetime), [event.datetime])
     const iconStyle = { width: '1rem', marginRight: '0.5rem' };
     const buttonStyle = { width: '2rem' }
+    const [registration, setRegistration] = useState('')
+    function openFullsizeCard({stubEventRegistration}) {
+    setRegistration(stubEventRegistration)
+    return (
+        <FullsizeEventCard registration={useState.arguments[0]}/>
+    )
+}
     return (
         <Card variant="outlined">
             <CardContent>
@@ -37,8 +57,10 @@ export const EventCard: FC<EventCardProps> = ({ event }) => {
                             <span>{event.organizers.join(", ")}</span>
                         </Typography>
                     </Stack>
-                {/* сделать переход по клику на FullsizeEventCard */}
-                  <IconButton onClick={() => <FullsizeEventCard name={event.name} datetime={event.datetime} place={event.place} organizers={event.organizers} />}><ArrowCircleRightIcon style={buttonStyle} /></IconButton>
+                    <Link to="/event">
+                        <IconButton onClick={() => (
+                        openFullsizeCard({stubEventRegistration}))}><ArrowCircleRightIcon style={buttonStyle} /></IconButton>
+                    </Link>
                 </Stack>
             </CardContent>
         </Card>
@@ -70,3 +92,18 @@ const monthName = [
     'ноября',
     'декабря'
 ]
+
+const stubEventRegistration: EventRegistration =
+{
+    id: 11,
+    userId: 123,
+    isRegistered: true,
+    event:   {
+        id: 11,
+        name: "Игротехника",
+        datetime: new Date(),
+        place: "Ломоносова, 9. ауд. 1220",
+        organizers: ['Вдовицын М.В.', 'Суязова И.М.']
+    }
+}
+
