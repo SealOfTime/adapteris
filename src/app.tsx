@@ -4,21 +4,17 @@ import React from "react";
 import { Route, Routes } from "react-router-dom";
 import { FeedPage } from "components/pages/feed";
 import { ProfilePage } from "components/pages/profile";
-import { ResultsPage } from "components/pages/results";
-import { FullsizeEventCard } from "components/organisms/event-card/fullsize-event-card";
 
 const App = (): JSX.Element => {
   return (
     <>
+      <Navbar />
       <Container maxWidth="sm">
         <Routes>
-          <Route path="/" element={<FeedPage />} />
           <Route path="/feed" element={<FeedPage />} />
-          <Route path="/profile" element={<ProfilePage />}/>
-          <Route path="/results" element={<ResultsPage />}/>
-          <Route path="/event" element={<FullsizeEventCard />} />
+          <Route />
+          <Route path="/profile" element={<ProfilePage />} /> 
         </Routes>
-        <Navbar />
       </Container>
     </>
   );
