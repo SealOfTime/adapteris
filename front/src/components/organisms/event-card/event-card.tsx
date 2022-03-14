@@ -1,7 +1,7 @@
 import { FC, useMemo, useState } from "react";
 import { Card, Stack, CardContent, Typography, Button, IconButton } from "@mui/material";
 import { ClockIcon, OfficeBuildingIcon, UsersIcon, ArrowCircleRightIcon } from "@heroicons/react/outline";
-import { FullsizeEventCard } from "./fullsize-event-card";
+import { FullsizeEventCard } from "../../pages/fullsize-event-card";
 import { Link } from 'react-router-dom'
 import Dialog from '@mui/material/Dialog';
 
@@ -39,6 +39,7 @@ export const EventCard: FC<EventCardProps> = ({ event }) => {
     )
 }
     return (
+        <>
         <Card variant="outlined">
             <CardContent>
                 <Stack direction="row" justifyContent="space-between">
@@ -64,6 +65,7 @@ export const EventCard: FC<EventCardProps> = ({ event }) => {
                 </Stack>
             </CardContent>
         </Card>
+        </>
     )
 }
 

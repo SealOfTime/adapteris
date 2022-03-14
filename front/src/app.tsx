@@ -5,7 +5,7 @@ import { Route, Routes } from "react-router-dom";
 import { FeedPage } from "components/pages/feed";
 import { ProfilePage } from "components/pages/profile";
 import { ResultsPage } from "components/pages/results";
-import { FullsizeEventCard } from "components/organisms/event-card/fullsize-event-card";
+import { FullsizeEventCard } from "components/pages/fullsize-event-card";
 
 const App = (): JSX.Element => {
   return (
