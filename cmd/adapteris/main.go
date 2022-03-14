@@ -3,12 +3,16 @@ package main
 import (
 	"fmt"
 
-	"github.com/sealoftime/adapteris/setup"
+	"github.com/sealoftime/adapteris/app"
 )
 
 func main() {
-	app := setup.App()
-	if err := app.Start(); err != nil {
+	cfg := app.NewConfig()
+	cfg.Setup()
+	fmt.Printf("Config: %+v\n", cfg)
+
+	a := app.New(cfg)
+	if err := a.Start(); err != nil {
 		fmt.Println(err)
 	}
 }

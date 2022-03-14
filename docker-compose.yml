@@ -1,0 +1,12 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:13.4-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: adapteris
+      POSTGRES_PASSWORD: adapteris
+      POSTGRES_DATABASE: adapteris
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
