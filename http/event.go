@@ -38,6 +38,7 @@ type Event struct {
 	Description string `json:"description"`
 }
 
+//CRUD
 func (h *EventHandlers) Rename(c *fiber.Ctx) error {
 	//Path param.
 	var (

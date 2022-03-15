@@ -22,6 +22,7 @@ type Services struct {
 }
 
 func (a *App) initServices() {
+	a.Service.User = user.NewUserService(a.Storage.accounts)
 	a.Service.Auth = user.NewAuthService(
 		a.Storage.accounts,
 	)

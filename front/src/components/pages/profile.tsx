@@ -1,8 +1,11 @@
 
-import React, { FC, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import { BookmarkIcon, PencilAltIcon, SaveIcon } from "@heroicons/react/outline";
 import { Box, Stack, Card, Typography, TextField, Icon, Container, IconButton, LinearProgressClassKey } from "@mui/material";
 import { color } from "@mui/system";
+import { useAuthCtx, useAuthenticatedUser } from "hooks/useAuth";
+import { Spinner } from "components/organisms/spinner";
+import { useNavigate } from "react-router-dom";
 
 export type User = {
     fullName: string
@@ -15,39 +18,37 @@ export type User = {
     email: string
 }
 
-export const ProfilePage: FC<User> = () => {
-    const iconStyle = { width: '2rem', color: 'black' };
-    const user = stubUser;
-    const [saved, edit] = useState(true);
+const iconStyle = { width: '2rem', color: 'black' };
+
+export const ProfilePage: FC = () => {
+    const navigate = useNavigate();
+    const user = useAuthenticatedUser();
+    const [edited, setEdited] = useState(false);
+
+    if (!user) {
+        return <Spinner />;
+    }
+    const editUser = () => setEdited(true);
+    const saveUser = () => console.log();
+
+    const actionButton = edited
+        ? <IconButton onClick={saveUser}><BookmarkIcon style={iconStyle} /></IconButton>
+        : <IconButton onClick={editUser}><PencilAltIcon style={iconStyle} /></IconButton >
     return (
         <>
-            <Box pt='1.25rem'>
-                <Stack width="100%" pt='1.25rem' paddingLeft='0.5rem' direction="row" justifyContent="space-between">
-                    <Typography variant="h1" gutterBottom>Профиль
-                    </Typography>
-                    {saved == true ? <IconButton><PencilAltIcon style={iconStyle} onClick={() => edit(false)} /></IconButton> :
-                        <IconButton><BookmarkIcon style={iconStyle} onClick={() => edit(true)} /></IconButton>}
-                </Stack>
-            </Box>
-            <Box pb='64px'>
+            <Stack width="100%" pt='2.5rem' paddingLeft='0.5rem' direction="row" justifyContent="space-between">
+                <Typography variant="h1" gutterBottom>Профиль</Typography>
+                {actionButton}
+            </Stack>
+            <Box>
                 <Card variant="outlined">
                     <Stack width='70%' pt='1.5rem' pb='1rem' paddingLeft='1rem' direction='column' justifyContent='space-between'>
-                        <Typography variant="h3" textAlign='match-parent'>Полное имя</Typography>
-                        <TextField disabled={saved} variant="standard" property="required" value={user.fullName}></TextField>
-                        <Typography variant="h3" textAlign='match-parent' paddingTop='1.5rem'>Краткое имя</Typography>
-                        <TextField disabled={saved} variant="standard" property="required" value={user.shortName}></TextField>
-                        <Typography variant="h3" textAlign='match-parent' paddingTop='1.5rem'>ID в ИСУ</Typography>
-                        <TextField disabled={saved} variant="standard" property="required" value={user.studentId}></TextField>
-                        <Typography variant="h3" textAlign='match-parent' paddingTop='1.5rem'>Учебная группа</Typography>
-                        <TextField disabled={saved} variant="standard" property="required" value={user.group}></TextField>
-                        <Typography variant="h3" textAlign='match-parent' paddingTop='1.5rem'>Ссылка в VK</Typography>
-                        <TextField disabled={saved} variant="standard" property="required" value={user.vkLink}></TextField>
-                        <Typography variant="h3" textAlign='match-parent' paddingTop='1.5rem'>Номер телефона</Typography>
-                        <TextField disabled={saved} variant="standard" property="required" value={user.phone}></TextField>
-                        <Typography variant="h3" textAlign='match-parent' paddingTop='1.5rem'>Telegram</Typography>
-                        <TextField disabled={saved} variant="standard" value={user.tg}></TextField>
-                        <Typography variant="h3" textAlign='match-parent' paddingTop='1.5rem'>Mail</Typography>
-                        <TextField disabled={saved} variant="standard" property="required" value={user.email}></TextField>
+                        <UserField label="Полное имя" value={user.fullname} edited={edited} />
+                        <UserField label="Краткое имя" value={user.shortname} edited={edited} />
+                        <UserField label="VK" value={user.vk} edited={edited} />
+                        <UserField label="Telegram" value={user.tg} edited={edited} />
+                        <UserField label="Email" value={user.email} edited={edited} />
+                        <UserField label="Номер телефона" value={user.phone} edited={edited} />
                     </Stack>
                 </Card>
             </Box>
@@ -55,14 +56,9 @@ export const ProfilePage: FC<User> = () => {
     );
 }
 
-const stubUser = {
-    fullName: "Ekaterina",
-    shortName: "GGGGGG",
-    studentId: 213784,
-    group: "P33102",
-    vkLink: 'vk.com',
-    phone: "89054758396",
-    tg: "@Smaash",
-    email: "@gmail.com",
-}
-
+const UserField = ({ label, value, edited, onEdit }) => (
+    <>
+        <Typography variant="h3" textAlign='match-parent' paddingTop='1.5rem'>{label}</Typography>
+        <TextField disabled={!edited} variant="standard" property="required" value={value} onChange={onEdit}></TextField>
+    </>
+)

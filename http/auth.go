@@ -27,8 +27,8 @@ func NewAuthController(
 	accountsService *user.Service,
 	authService *user.AuthService,
 	vkService *vk.Service,
-) AuthHandlers {
-	app := AuthHandlers{
+) *AuthHandlers {
+	app := &AuthHandlers{
 		App:            fiber.New(),
 		sessionService: session,
 		accountService: accountsService,
@@ -80,7 +80,7 @@ func (a *AuthHandlers) authenticate(c *fiber.Ctx, uid int64) error {
 		)
 	}
 
-	s.Set(UserIdSessionKey, true)
+	s.Set(UserIdSessionKey, uid)
 
 	if err := s.Save(); err != nil {
 		return fiber.NewError(
@@ -88,8 +88,8 @@ func (a *AuthHandlers) authenticate(c *fiber.Ctx, uid int64) error {
 			fmt.Sprintf("unable to save session: %+v", err),
 		)
 	}
-
-	return c.SendStatus(fiber.StatusOK)
+	fmt.Printf("successfully authorized: %s\n", s.ID())
+	return c.SendStatus(200)
 }
 
 func (a *AuthHandlers) Authenticated() fiber.Handler {
@@ -103,11 +103,18 @@ func (a *AuthHandlers) Authenticated() fiber.Handler {
 
 		uidRaw := s.Get(UserIdSessionKey)
 		if uidRaw == nil {
+			fmt.Printf("no uidRaw in session\n")
 			return c.
 				SendStatus(fiber.StatusUnauthorized)
 		}
-
-		u, err := a.accountService.RetrieveUserById(c.UserContext(), uidRaw.(int64))
+		uid, ok := uidRaw.(int64)
+		if !ok {
+			fmt.Printf("bad uidRaw in session expected int64 got %T\n", uid)
+			return c.
+				SendStatus(fiber.StatusUnauthorized)
+		}
+		fmt.Printf("authenticating user with uid %d\n", uid)
+		u, err := a.accountService.RetrieveUserById(c.UserContext(), uid)
 		if err != nil {
 			return c.
 				Status(fiber.StatusInternalServerError).
@@ -115,7 +122,7 @@ func (a *AuthHandlers) Authenticated() fiber.Handler {
 		}
 
 		c.Locals(UserCtxKey, u)
-		return nil
+		return c.Next()
 	}
 }
 

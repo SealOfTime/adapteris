@@ -4,16 +4,18 @@ import (
 	"regexp"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/session"
 	"github.com/sealoftime/adapteris/http"
 )
 
 type Routes struct {
-	auth   http.AuthHandlers
-	school *http.SchoolHandlers
-	stage  *http.StageHandlers
-	step   *http.StepHandlers
-	event  *http.EventHandlers
+	auth    *http.AuthHandlers
+	school  *http.SchoolHandlers
+	stage   *http.StageHandlers
+	step    *http.StepHandlers
+	event   *http.EventHandlers
+	profile *http.ProfileHandlers
 }
 
 func (a *App) initRoutes() {
@@ -41,10 +43,16 @@ func (a *App) initRoutes() {
 		a.Log,
 		a.Service.Event,
 	)
+	a.Routes.profile = http.NewProfileHandlers(
+		a.Log,
+		a.Routes.auth,      //todo: bad
+		a.Storage.accounts, //todo: very bad
+	)
 }
 
 func (a *App) initHttpserver() {
 	a.Http = fiber.New()
+	a.Http.Use(logger.New())
 	a.Http.Use(http.PgxTransactional(a.Storage.connPool, a.Log))
 	a.mountRoutes(a.Http)
 }
@@ -81,7 +89,7 @@ func (a *App) mountAPI(route fiber.Router) {
 	api.Mount("/stage", a.Routes.stage.App)
 	api.Mount("/step", a.Routes.step.App)
 	api.Mount("/event", a.Routes.event.App)
-
+	api.Mount("/profile", a.Routes.profile.App)
 	//404 for api calls
 	api.Use(func(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusNotFound).

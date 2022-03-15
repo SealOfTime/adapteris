@@ -48,12 +48,18 @@ type School struct {
 }
 
 func (h *SchoolHandlers) GetSchool(c *fiber.Ctx) error {
+	//Path param.
+	var (
+		schoolId int64
+	)
 	type Response struct {
 		School School `json:"school"`
 	}
+	var (
+		err error
+	)
 
-	schoolId, err := strconv.ParseInt(c.Params("schoolId"), 10, 64)
-	if err != nil {
+	if schoolId, err = strconv.ParseInt(c.Params("schoolId"), 10, 64); err != nil {
 		return fiber.NewError(
 			fiber.StatusBadRequest,
 			"bad schoolId",
@@ -206,21 +212,27 @@ func (h *SchoolHandlers) ScheduleRegistration(c *fiber.Ctx) error {
 }
 
 func (h *SchoolHandlers) AddStage(c *fiber.Ctx) error {
+	//Path param.
+	var (
+		schoolId int64
+	)
+	type RequestBody struct {
+		Stage Stage `json:"stage"`
+	}
 	type Response struct {
 		Stage Stage `json:"stage"`
 	}
-
-	schoolId, err := strconv.ParseInt(c.Params("schoolId"), 10, 64)
-	if err != nil {
+	var (
+		req RequestBody
+		err error
+	)
+	if schoolId, err = strconv.ParseInt(c.Params("schoolId"), 10, 64); err != nil {
 		return fiber.NewError(
 			fiber.StatusBadRequest,
 			"bad schoolId",
 		)
 	}
 
-	var req struct {
-		Stage Stage `json:"stage"`
-	}
 	if err := c.BodyParser(&req); err != nil {
 		return fiber.NewError(
 			fiber.StatusInternalServerError,

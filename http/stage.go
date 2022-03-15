@@ -177,8 +177,15 @@ func (h *StageHandlers) AddStep(c *fiber.Ctx) error {
 		Step Step `json:"step"`
 	}
 
-	var err error
-	if stageId, err = strconv.ParseInt(c.Params("stageId"), 10, 64); err != nil {
+	var (
+		rawStageId string
+		err        error
+	)
+	if rawStageId = c.Params("stageId"); rawStageId == "my" {
+
+	}
+
+	if stageId, err = strconv.ParseInt(rawStageId, 10, 64); err != nil {
 		return fiber.NewError(
 			fiber.StatusBadRequest,
 			"bad stageId",

@@ -95,12 +95,10 @@ func domainStepToDto(step school.Step) Step {
 	res := Step{
 		Id:           step.Id,
 		MustComplete: step.MustComplete,
+		Events:       make([]Event, len(step.Events)),
 	}
-	if len(step.Events) > 0 {
-		res.Events = make([]Event, len(step.Events))
-		for i, event := range step.Events {
-			res.Events[i] = domainEventToDto(event)
-		}
+	for i, event := range step.Events {
+		res.Events[i] = domainEventToDto(event)
 	}
 	return res
 }

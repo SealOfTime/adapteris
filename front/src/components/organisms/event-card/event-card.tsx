@@ -1,4 +1,4 @@
-import { FC, useMemo, useState } from "react";
+import React, { FC, useMemo, useState } from "react";
 import { Card, Stack, CardContent, Typography, Button, IconButton } from "@mui/material";
 import { ClockIcon, OfficeBuildingIcon, UsersIcon, ArrowCircleRightIcon } from "@heroicons/react/outline";
 import { FullsizeEventCard } from "./fullsize-event-card";

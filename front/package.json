@@ -47,6 +47,7 @@
     "ts-jest": "^27.0.7",
     "typescript": "^4.4.4",
     "vite": "^2.6.10",
+    "vite-plugin-react-svg": "^0.2.0",
     "vite-preset-react": "^2.0.0"
   }
 }

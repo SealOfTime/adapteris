@@ -1,12 +1,13 @@
 import { defineConfig } from "vite";
 import { resolve } from "path";
 import react from "@vitejs/plugin-react";
+import reactSvgPlugin from "vite-plugin-react-svg";
 
 export default defineConfig((configEnv) => {
   const isDevelopment = configEnv.mode === "development";
 
   return {
-    plugins: [react()],
+    plugins: [react(), reactSvgPlugin()],
     resolve: {
       alias: {
         components: resolve(__dirname, "src", "components"),
