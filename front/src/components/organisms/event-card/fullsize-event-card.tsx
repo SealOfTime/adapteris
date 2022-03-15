@@ -1,4 +1,4 @@
-import { FC, useMemo, useState} from "react";
+import React, { FC, useMemo, useState} from "react";
 import { Card, Stack, CardContent, Button, Typography, Box, stepButtonClasses } from "@mui/material"
 import { SchoolEvent, EventRegistration } from "components/organisms/event-card/event-card";
 import { ClockIcon, UsersIcon, OfficeBuildingIcon } from "@heroicons/react/outline"
@@ -10,7 +10,7 @@ type FullsizeEventCardProps = {
 export const FullsizeEventCard: FC<FullsizeEventCardProps> = ({registration}) => {
     const[unregistered, registered] = useState(false);
     registration = stubEventRegistration
-    const {day, month, hour, minute} = useMemo(()=>formatDate(registration.event.datetime), [registration.event.datetime]) 
+    const {day, month, hour, minute} = useMemo(()=>formatDate(registration.event.datetime), [registration.event.datetime])
     const iconStyle = { width: '1rem', marginRight: '0.5rem' }
 
     return (
@@ -26,7 +26,7 @@ export const FullsizeEventCard: FC<FullsizeEventCardProps> = ({registration}) =>
                             <Typography variant="h3" gutterBottom>{registration.event.name}</Typography>
                             <Typography variant="subtitle1" display="flex">
                                 <ClockIcon style={iconStyle} />
-                              <span>{day} {month} в {hour}:{minute}</span>  
+                              <span>{day} {month} в {hour}:{minute}</span>
                             </Typography>
                             <Typography variant="subtitle1" display="flex">
                                 <OfficeBuildingIcon style={iconStyle} />
@@ -39,13 +39,13 @@ export const FullsizeEventCard: FC<FullsizeEventCardProps> = ({registration}) =>
                         </Stack>
                         <Box marginTop="1rem">
                         <Stack direction="column" justifyContent="center">
-                            {unregistered == false? 
+                            {unregistered == false?
                             <Stack justifyContent="center">
                             <Typography align="center">Вы зарегистрированы на мероприятие:</Typography>
                              <Button variant="text" onClick={() => (registered(true))}>Отменить запись</Button>
                              </Stack>
                              : <Stack direction='column'>
-                                 <Typography align="center">Вы не зарегистрированы на это мероприятие </Typography> 
+                                 <Typography align="center">Вы не зарегистрированы на это мероприятие </Typography>
                                  <Button variant="text" onClick={() => (registered(false))}>Зарегистрироваться</Button>
                              </Stack> }
                         </Stack>
