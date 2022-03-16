@@ -1,8 +1,12 @@
 import { QueryClient } from "react-query";
 
 const queryFn = async ({ queryKey }) => {
-    const raw = await fetch(`/api/${queryKey.join('/')}`);
-    const data = await raw.json();
+    const res = await fetch(`/api/${queryKey.join('/')}`);
+    if(res.status === 404) {
+        return null;
+    }
+
+    const data = await res.json();
     return data;
 };
 

@@ -3,9 +3,9 @@ package app
 import (
 	"fmt"
 
+	"github.com/sealoftime/adapteris/domain/integration/vk"
 	"github.com/sealoftime/adapteris/domain/school"
 	"github.com/sealoftime/adapteris/domain/user"
-	"github.com/sealoftime/adapteris/integration/vk"
 )
 
 //Services stores application-level services i.e. those dependent on the concrete protocols etc

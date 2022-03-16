@@ -16,7 +16,15 @@ func NewService(schoolRepo SchoolRepository) *Service {
 	}
 }
 
+const (
+	ActiveSchoolId int64 = 0
+)
+
 func (s *Service) GetSchool(ctx context.Context, id int64) (*School, error) {
+	if id == ActiveSchoolId {
+		id = int64(time.Now().Year())
+	}
+
 	return s.schools.FindById(ctx, id)
 }
 

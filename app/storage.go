@@ -11,12 +11,13 @@ import (
 )
 
 type Storages struct {
-	connPool *pgxpool.Pool
-	accounts user.Repository
-	schools  school.SchoolRepository
-	stages   school.StageRepository
-	steps    school.StepRepository
-	events   school.EventRepository
+	connPool       *pgxpool.Pool
+	accounts       user.Repository
+	schools        school.SchoolRepository
+	stages         school.StageRepository
+	steps          school.StepRepository
+	events         school.EventRepository
+	participations *pgx.ParticipationStorage
 }
 
 func (a *App) initStorage() {
@@ -26,6 +27,7 @@ func (a *App) initStorage() {
 	a.Storage.stages = pgx.NewStageStorage(a.Log)
 	a.Storage.steps = pgx.NewStepStorage(a.Log)
 	a.Storage.events = pgx.NewEventStorage(a.Log)
+	a.Storage.participations = &pgx.ParticipationStorage{}
 }
 
 // Open new connection

@@ -9,7 +9,7 @@ import (
 type Participation struct {
 	Id          int64
 	Participant user.Account
-	Passed      bool
+	Passed      *bool
 }
 
 type ParticipationRepository interface {

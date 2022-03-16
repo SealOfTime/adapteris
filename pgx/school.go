@@ -11,18 +11,6 @@ import (
 	"github.com/sealoftime/adapteris/log"
 )
 
-type SchoolStorage struct {
-	log log.Logger
-}
-
-func NewSchoolStorage(log log.Logger) *SchoolStorage {
-	return &SchoolStorage{
-		log: log,
-	}
-}
-
-var _ school.SchoolRepository = (*SchoolStorage)(nil)
-
 var (
 	School = struct {
 		id, name, visible, start, end, registrationStart, registrationEnd string
@@ -44,9 +32,10 @@ var (
 		School.registrationStart,
 		School.registrationEnd,
 	}
-)
-
-var (
+	selectActiveSchool = fmt.Sprintf(
+		"SELECT %s FROM school WHERE %s=true",
+		allSchoolColumns.sqlString(), School.visible,
+	)
 	selectSchoolByIdSql = fmt.Sprintf(
 		"SELECT %s FROM school WHERE %s=$1",
 		allSchoolColumns.sqlString(), School.id,
@@ -57,10 +46,17 @@ var (
 	)
 )
 
-const (
-	//AverageStagesInSchool is a constant of average stages per year
-	AverageStagesInSchool int = 4
-)
+type SchoolStorage struct {
+	log log.Logger
+}
+
+func NewSchoolStorage(log log.Logger) *SchoolStorage {
+	return &SchoolStorage{
+		log: log,
+	}
+}
+
+var _ school.SchoolRepository = (*SchoolStorage)(nil)
 
 func (s *SchoolStorage) FindById(ctx context.Context, id int64) (*school.School, error) {
 	tx := TxFromCtx(ctx)
@@ -79,6 +75,11 @@ func (s *SchoolStorage) FindById(ctx context.Context, id int64) (*school.School,
 	}
 	return &sch, nil
 }
+
+const (
+	//AverageStagesInSchool is a constant of average stages per year
+	AverageStagesInSchool int = 4
+)
 
 func (s *SchoolStorage) findRelationships(ctx context.Context, sch *school.School) error {
 	tx := TxFromCtx(ctx)

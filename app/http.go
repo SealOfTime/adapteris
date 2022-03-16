@@ -10,17 +10,19 @@ import (
 )
 
 type Routes struct {
-	auth    *http.AuthHandlers
-	school  *http.SchoolHandlers
-	stage   *http.StageHandlers
-	step    *http.StepHandlers
-	event   *http.EventHandlers
-	profile *http.ProfileHandlers
+	auth          *http.AuthHandlers
+	school        *http.SchoolHandlers
+	stage         *http.StageHandlers
+	step          *http.StepHandlers
+	event         *http.EventHandlers
+	profile       *http.ProfileHandlers
+	participation *http.ParticipationHandlers
 }
 
 func (a *App) initRoutes() {
 	a.Routes.auth = http.NewAuthController(
 		session.New(),
+		a.Config.HostURL,
 		a.Service.User,
 		a.Service.Auth,
 		a.Service.Integration.Vk,
@@ -47,6 +49,10 @@ func (a *App) initRoutes() {
 		a.Log,
 		a.Routes.auth,      //todo: bad
 		a.Storage.accounts, //todo: very bad
+	)
+	a.Routes.participation = http.NewParticipationHandlers(
+		a.Routes.auth,
+		a.Storage.participations,
 	)
 }
 
@@ -90,6 +96,7 @@ func (a *App) mountAPI(route fiber.Router) {
 	api.Mount("/step", a.Routes.step.App)
 	api.Mount("/event", a.Routes.event.App)
 	api.Mount("/profile", a.Routes.profile.App)
+	api.Mount("/participations", a.Routes.participation.App)
 	//404 for api calls
 	api.Use(func(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusNotFound).

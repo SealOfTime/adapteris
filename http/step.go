@@ -47,7 +47,8 @@ func (h *StepHandlers) AddEvent(c *fiber.Ctx) error {
 		stepId int64
 	)
 	type RequestBody struct {
-		Name string `json:"name"`
+		Name        string  `json:"name"`
+		Description *string `json:"description"`
 	}
 	type Response struct {
 		Event Event `json:"event"`
@@ -76,8 +77,9 @@ func (h *StepHandlers) AddEvent(c *fiber.Ctx) error {
 	ctx = c.UserContext()
 
 	if res, err = h.eventService.AddEvent(ctx, school.AddEventRequest{
-		StepId: stepId,
-		Name:   body.Name,
+		StepId:      stepId,
+		Name:        body.Name,
+		Description: body.Description,
 	}); err != nil {
 		return fiber.NewError(
 			fiber.StatusInternalServerError,

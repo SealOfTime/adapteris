@@ -1,5 +1,6 @@
 import { createTheme } from '@mui/material/styles';
 import colors from './colors';
+import { ruRU } from '@mui/material/locale';
 // project imports
 import componentStyleOverrides from './compStyleOverride';
 import themePalette from './palette';
@@ -40,7 +41,8 @@ export const theme = (customization) => {
                 }
             }
         },
-        typography: themeTypography(themeOption)
+        typography: themeTypography(themeOption),
+        ruRU,
     };
 
     const themes = createTheme(themeOptions);

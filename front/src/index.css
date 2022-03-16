@@ -8,3 +8,7 @@
     -webkit-font-smoothing: antialiased;
   }
 }
+
+html, body, #root {
+  min-height: 100vh;
+}

@@ -3,17 +3,15 @@ package school
 import (
 	"context"
 	"time"
-
-	"github.com/sealoftime/adapteris/domain/user"
 )
 
 type EventSession struct {
 	Id              int64
-	Time            time.Time
+	DateTime        time.Time
 	Place           string
 	MaxParticipants int32
-	Organizers      []user.Account
-	Participants    []Participation
+	// Organizers      []user.Account
+	// Participants []Participation
 }
 
 type EventSessionRepository interface {

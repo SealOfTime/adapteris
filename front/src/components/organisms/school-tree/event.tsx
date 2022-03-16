@@ -1,4 +1,4 @@
-import React, {FC} from "react";
+import React, {FC, useMemo} from "react";
 import {SchoolEvent} from "hooks/useSchool";
 import {IconButton, Stack} from "@mui/material";
 import {
@@ -9,11 +9,33 @@ import {
     QuestionMarkCircleIcon, XCircleIcon
 } from "@heroicons/react/outline";
 import {useNavigate} from "react-router-dom";
+import {useMyEventParticipations} from "hooks/useMyEventParticipations";
 
 export const SchoolEventBubble: FC<{ event: SchoolEvent }> = ({ event }) => {
     const navigate = useNavigate();
+    const participations = useMyEventParticipations();
+    const status = useMemo(()=>{
+        const now = new Date();
+        if(participations.data) {
+            for (const p of participations.data) {
+                if (p.session.event.id === event.id) {
+                    if (p.passed) {
+                        return "COMPLETED"
+                    }
+                    if (p.passed === null) {
+                        if (p.session.datetime < now) {
+                            return "PENDING"
+                        }
+                        return "REGISTERED"
+                    }
+                    return "FAILED"
+                }
+            }
+        }
+        return "TODO"
+    }, [participations.data])
     let statusIcon: JSX.Element;
-    switch(event.status) {
+    switch(status) {
         case "COMPLETED": statusIcon = <CheckCircleIcon />; break;
         case "PENDING": statusIcon = <QuestionMarkCircleIcon/>; break;
         case "REGISTERED": statusIcon = <ExclamationCircleIcon/>; break;

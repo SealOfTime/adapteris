@@ -2,6 +2,7 @@ package school
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/sealoftime/adapteris/log"
@@ -37,12 +38,14 @@ func (s *StageService) AddStage(ctx context.Context, req AddStageRequest) (*Stag
 		return nil, err
 	}
 
-	school.Stages = append(school.Stages, Stage{
+	newStage := Stage{
 		Name:        req.Name,
 		Description: req.Description,
 		StartDate:   req.Start,
 		EndDate:     req.End,
-	})
+	}
+	fmt.Printf("added new stage %+v\n", newStage)
+	school.Stages = append(school.Stages, newStage)
 
 	dbSchool, err := s.schools.Save(ctx, school)
 	if err != nil {

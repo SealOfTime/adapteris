@@ -1,22 +1,9 @@
-
-import React, { FC, useEffect, useState } from "react";
-import { BookmarkIcon, PencilAltIcon, SaveIcon } from "@heroicons/react/outline";
-import { Box, Stack, Card, Typography, TextField, Icon, Container, IconButton, LinearProgressClassKey } from "@mui/material";
-import { color } from "@mui/system";
-import { useAuthCtx, useAuthenticatedUser } from "hooks/useAuth";
-import { Spinner } from "components/organisms/spinner";
-import { useNavigate } from "react-router-dom";
-
-export type User = {
-    fullName: string
-    shortName?: string
-    studentId: number
-    group: string
-    vkLink?: string
-    phone: string
-    tg?: string
-    email: string
-}
+import React, {FC, useState} from "react";
+import {BookmarkIcon, PencilAltIcon} from "@heroicons/react/outline";
+import {Box, Card, IconButton, Stack, TextField, Typography} from "@mui/material";
+import {useAuthenticatedUser} from "hooks/useAuth";
+import {Spinner} from "components/organisms/spinner";
+import {useNavigate} from "react-router-dom";
 
 const iconStyle = { width: '2rem', color: 'black' };
 
@@ -56,7 +43,7 @@ export const ProfilePage: FC = () => {
     );
 }
 
-const UserField = ({ label, value, edited, onEdit }) => (
+const UserField: FC<{label: string, value: string, edited: boolean, onEdit?: ()=>void}> = ({ label, value, edited, onEdit }) => (
     <>
         <Typography variant="h3" textAlign='match-parent' paddingTop='1.5rem'>{label}</Typography>
         <TextField disabled={!edited} variant="standard" property="required" value={value} onChange={onEdit}></TextField>

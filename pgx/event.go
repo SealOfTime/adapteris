@@ -41,8 +41,39 @@ func NewEventStorage(
 	}
 }
 
+var (
+	selectEventById = fmt.Sprintf(
+		"SELECT %s FROM event WHERE id=$1",
+		allEventColumns.sqlString(),
+	)
+	selectSessionsForEvent = "SELECT id, place, datetime FROM event_session WHERE event_id=$1"
+)
+
 func (s *EventStorage) FindById(ctx context.Context, id int64) (*school.Event, error) {
-	panic("todo")
+	var (
+		tx   = TxFromCtx(ctx)
+		rows pgx.Rows
+		res  school.Event
+		ses  school.EventSession
+		err  error
+	)
+	if res, err = mapEvent(tx.QueryRow(ctx, selectEventById, id)); err != nil {
+		return nil, err
+	}
+
+	if rows, err = tx.Query(ctx, selectSessionsForEvent, res.Id); err != nil {
+		return nil, fmt.Errorf("error finding sessions: %w", err)
+	}
+
+	res.Sessions = make([]school.EventSession, 0, 10)
+	for rows.Next() {
+		if err = rows.Scan(&ses.Id, &ses.Place, &ses.DateTime); err != nil {
+			return nil, fmt.Errorf("error scanning sessions: %w", err)
+		}
+		res.Sessions = append(res.Sessions, ses)
+	}
+
+	return &res, nil
 }
 
 func (s *EventStorage) Save(ctx context.Context, saved *school.Event) (returned *school.Event, err error) {

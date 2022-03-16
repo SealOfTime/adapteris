@@ -217,11 +217,9 @@ func domainStageToDto(stage school.Stage) Stage {
 		StartDate:   stage.StartDate,
 		EndDate:     stage.EndDate,
 	}
-	if len(stage.Steps) != 0 {
-		res.Steps = make([]Step, len(stage.Steps))
-		for i, step := range stage.Steps {
-			res.Steps[i] = domainStepToDto(step)
-		}
+	res.Steps = make([]Step, len(stage.Steps))
+	for i, step := range stage.Steps {
+		res.Steps[i] = domainStepToDto(step)
 	}
 	return res
 }

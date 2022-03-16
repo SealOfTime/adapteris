@@ -5,8 +5,8 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/session"
+	"github.com/sealoftime/adapteris/domain/integration/vk"
 	"github.com/sealoftime/adapteris/domain/user"
-	"github.com/sealoftime/adapteris/integration/vk"
 )
 
 const (
@@ -16,6 +16,7 @@ const (
 
 type AuthHandlers struct {
 	*fiber.App
+	hostUrl        string
 	accountService *user.Service
 	sessionService *session.Store
 	authService    *user.AuthService
@@ -24,12 +25,14 @@ type AuthHandlers struct {
 
 func NewAuthController(
 	session *session.Store,
+	hostUrl string,
 	accountsService *user.Service,
 	authService *user.AuthService,
 	vkService *vk.Service,
 ) *AuthHandlers {
 	app := &AuthHandlers{
 		App:            fiber.New(),
+		hostUrl:        hostUrl,
 		sessionService: session,
 		accountService: accountsService,
 		authService:    authService,
@@ -89,7 +92,7 @@ func (a *AuthHandlers) authenticate(c *fiber.Ctx, uid int64) error {
 		)
 	}
 	fmt.Printf("successfully authorized: %s\n", s.ID())
-	return c.SendStatus(200)
+	return c.Redirect(fmt.Sprintf("%s/loggedin", a.hostUrl))
 }
 
 func (a *AuthHandlers) Authenticated() fiber.Handler {

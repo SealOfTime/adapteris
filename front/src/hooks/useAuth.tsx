@@ -1,56 +1,67 @@
 import { Spinner } from "components/organisms/spinner";
-import React, { createContext, FC, ReactChildren, useContext, useEffect, useState } from "react";
+import React, {createContext, FC, ReactChildren, useCallback, useContext, useEffect, useState} from "react";
 import { useQuery } from "react-query";
-import { useNavigate } from "react-router-dom";
-
-export const useAuthenticatedUser = () => {
-    const navigate = useNavigate();
-    const user = useAuth();
-    useEffect(() => (!user.data && !user.isLoading) && navigate("/login"), [user, navigate]);
-    return user.data;
-}
-
-export const useCanEdit = () => {
-    const user = useAuthenticatedUser();
-    return user && user.role === 'ADMIN';
-}
-
-export const useAuth = () => {
-    return useContext(authContext);
-}
-
-export const ProvideAuth: FC = ({ children }) => {
-    const auth = useProvideAuth();
-    return (
-        <authContext.Provider value={auth}> {children} </authContext.Provider>
-    )
-};
-
-const authContext = createContext<
-    {
-        data: User | null,
-        isLoading: boolean
-    }>({ data: null, isLoading: false });
+import {createSearchParams, useLocation, useNavigate} from "react-router-dom";
 
 type UserRole =
     | 'ADMIN'
     | 'USER'
 
-type User = {
-    fullname: string
-    shortname: string
-    isu: number
-    group: string
-    vk: string
-    phone: string
-    tg: string
-    email: string
+export type User = {
+    id: number
     role: UserRole
+    shortname: string
+    vk: string
+    email: string
+    fullname?: string
+    phone?: string
+    tg?: string
+}
+export const useLogin = () => {
+    const {pathname} = useLocation();
+    const navigate = useNavigate();
+    const login = useCallback(
+        () => {
+            navigate({
+                pathname: "/login",
+                search: createSearchParams({
+                    redirect: pathname,
+                }).toString(),
+            })
+        },
+        [navigate, pathname],
+    );
+    return login
 }
 
+export const useAuthenticatedUser = () => {
+    const login = useLogin();
+    const user = useUser();
+    useEffect(() => {
+        if (!user.data && !user.isLoading) {
+            login();
+        }
+    }, [user, login]);
+    return user.data;
+}
 
-const useProvideAuth = () => {
-    const { isLoading, error, data } = useQuery<User>(['profile', 'my'], {
+export const useCanEdit = () => {
+    const {data: user} = useUser();
+    return user && user.role === 'ADMIN';
+}
+
+export const useUser = () => {
+    const { isLoading, error, data } = useQuery<User | null>(['profile', 'my'], {
+        queryFn: async ({queryKey}) => {
+            const resp = await fetch(`/api/${queryKey.join('/')}`)
+            if(resp.status === 401) {
+                return null;
+            }
+            if(resp.status === 200) {
+                return resp.json();
+            }
+            throw `Unexpected error: ${await resp.text()}`
+        },
         retry: 1,
     })
     return { data, isLoading };

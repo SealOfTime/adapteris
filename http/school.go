@@ -1,12 +1,15 @@
 package http
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/jackc/pgx/v4"
 	"github.com/sealoftime/adapteris/domain/school"
+	mypgx "github.com/sealoftime/adapteris/pgx"
 )
 
 type SchoolHandlers struct {
@@ -24,6 +27,7 @@ func NewSchoolHandlers(
 		schoolService: schoolService,
 		stageService:  stageService,
 	}
+
 	app.Post("/", app.CreateSchool)
 	school := app.Group("/:schoolId")
 	{
@@ -32,6 +36,7 @@ func NewSchoolHandlers(
 		school.Put("/dates", app.ScheduleSchool)
 		school.Put("/registration", app.ScheduleRegistration)
 		school.Post("/stages", app.AddStage)
+		school.Post("/copy", app.DupeSchool)
 	}
 	return app
 }
@@ -44,7 +49,7 @@ type School struct {
 	EndDate               *time.Time `json:"end"`
 	RegistrationOpenDate  *time.Time `json:"registerStart"`
 	RegistrationCloseDate *time.Time `json:"registerEnd"`
-	Stages                []Stage    `json:"stages,omitempty"`
+	Stages                []Stage    `json:"stages"`
 }
 
 func (h *SchoolHandlers) GetSchool(c *fiber.Ctx) error {
@@ -56,6 +61,8 @@ func (h *SchoolHandlers) GetSchool(c *fiber.Ctx) error {
 		School School `json:"school"`
 	}
 	var (
+		ctx = c.UserContext()
+		sch *school.School
 		err error
 	)
 
@@ -66,9 +73,13 @@ func (h *SchoolHandlers) GetSchool(c *fiber.Ctx) error {
 		)
 	}
 
-	ctx := c.UserContext()
-	sch, err := h.schoolService.GetSchool(ctx, schoolId)
-	if err != nil {
+	if sch, err = h.schoolService.GetSchool(ctx, schoolId); err != nil {
+		if errors.Is(pgx.ErrNoRows, err) {
+			return fiber.NewError(
+				fiber.StatusNotFound,
+				"school not found",
+			)
+		}
 		return fiber.NewError(
 			fiber.StatusInternalServerError,
 			fmt.Sprintf("unexpected error: %+v", err),
@@ -233,7 +244,7 @@ func (h *SchoolHandlers) AddStage(c *fiber.Ctx) error {
 		)
 	}
 
-	if err := c.BodyParser(&req); err != nil {
+	if err = c.BodyParser(&req); err != nil {
 		return fiber.NewError(
 			fiber.StatusInternalServerError,
 			fmt.Sprintf("malformed body: %+v", err),
@@ -260,6 +271,32 @@ func (h *SchoolHandlers) AddStage(c *fiber.Ctx) error {
 	})
 }
 
+func (h *SchoolHandlers) DupeSchool(c *fiber.Ctx) error {
+	var (
+		refId int64
+	)
+	var (
+		ctx = c.UserContext()
+		err error
+	)
+	if refId, err = strconv.ParseInt(c.Params("schoolId"), 10, 64); err != nil {
+		return fiber.NewError(
+			fiber.StatusBadRequest,
+			"bad schoolId for reference",
+		)
+	}
+
+	tx := mypgx.TxFromCtx(ctx)
+	if _, err = tx.Exec(ctx, "SELECT FROM dupe_school($1, $2)", refId, time.Now().Year()); err != nil {
+		return fiber.NewError(
+			fiber.StatusInternalServerError,
+			fmt.Sprintf("unexpected error: %+v", err),
+		)
+	}
+
+	return c.SendStatus(201)
+}
+
 func domainSchoolToDto(sch school.School) School {
 	schoolDto := School{
 		Id:                    sch.Id,
@@ -270,11 +307,9 @@ func domainSchoolToDto(sch school.School) School {
 		RegistrationOpenDate:  sch.RegistrationOpenDate,
 		RegistrationCloseDate: sch.RegistrationCloseDate,
 	}
-	if len(sch.Stages) != 0 {
-		schoolDto.Stages = make([]Stage, len(sch.Stages))
-		for i, stage := range sch.Stages {
-			schoolDto.Stages[i] = domainStageToDto(stage)
-		}
+	schoolDto.Stages = make([]Stage, len(sch.Stages))
+	for i, stage := range sch.Stages {
+		schoolDto.Stages[i] = domainStageToDto(stage)
 	}
 	return schoolDto
 }

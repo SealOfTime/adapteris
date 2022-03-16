@@ -1,25 +1,41 @@
 import { Button } from '@mui/material';
-import React, { useRef, useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import { VkLogo } from './vk-logo';
+import {useNavigate, useSearchParams} from "react-router-dom";
+import {useUser} from "hooks/useAuth";
 
 export const VkLoginButton = () => {
     const [popup, setPopup] = useState<Window | null>(null);
+    const user = useUser()
+    const navigate = useNavigate();
+    const [params] = useSearchParams({redirect: "/"});
+    useEffect(()=> {
+        if(user.data) {
+            navigate(params.get("redirect"))
+        }
+    }, [user])
+    useEffect(
+        () => {
+            if(popup) {
+                const timer = setInterval(()=>{
+                    if(popup?.closed) {
+                        clearInterval(timer);
+                        setPopup(null);
+                    }
+                }, 1000);
+                return ()=>clearInterval(timer)
+            }},
+        [popup, setPopup]
+    )
     const initiateLogin = () => {
         if (!popup) {
             const newPopup = popupCenter({ url: "/api/auth/login", title: "Окно авторизации", w: 660, h: 360 })
             newPopup.onmessage = (e) => {
-                console.log(e);
-                if (e === "login success") {
+                if (e.data === "success login") {
                     newPopup.close();
-                    setPopup(null);
+                    navigate(params.get("redirect"))
                 }
             };
-            const timer = setInterval(() => {
-                if (newPopup.closed) {
-                    clearInterval(timer)
-                    setPopup(null);
-                }
-            }, 1000)
             setPopup(newPopup);
         } else {
             popup.focus();
@@ -27,13 +43,20 @@ export const VkLoginButton = () => {
     };
     return (
         <>
-            <Button variant="contained" style={{
-                padding: 0,
+            <Button variant="contained" sx={{
+                padding: '0.5rem',
                 margin: 'auto',
-                width: 120,
                 display: 'flex',
+                fontWeight: 'bold',
                 justifyContent: 'space-around',
-            }} onClick={initiateLogin}><VkLogo /><div>Войти</div></Button>
+                color: 'black',
+                backgroundColor: 'white',
+                borderRadius: '20px',
+                '&:hover': {
+                    color: 'white',
+                    backgroundColor: '#0077FF',
+                }
+            }} onClick={initiateLogin}><VkLogo/><div style={{margin: '1rem'}}>Войти Вконтакте</div></Button>
         </>
     )
 }

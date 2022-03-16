@@ -23,9 +23,14 @@ func NewEventService(
 	}
 }
 
+func (s *EventService) Get(ctx context.Context, id int64) (*Event, error) {
+	return s.events.FindById(ctx, id)
+}
+
 type AddEventRequest struct {
-	StepId int64
-	Name   string
+	StepId      int64
+	Name        string
+	Description *string
 }
 
 func (s *EventService) AddEvent(ctx context.Context, req AddEventRequest) (*Event, error) {
@@ -39,7 +44,8 @@ func (s *EventService) AddEvent(ctx context.Context, req AddEventRequest) (*Even
 	}
 
 	step.Events = append(step.Events, Event{
-		Name: req.Name,
+		Name:        req.Name,
+		Description: req.Description,
 	})
 
 	if saved, err = s.steps.Save(ctx, step); err != nil {
